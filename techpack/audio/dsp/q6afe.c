@@ -7684,7 +7684,7 @@ static ssize_t afe_debug_write(struct file *filp,
 	const char __user *ubuf, size_t cnt, loff_t *ppos)
 {
 	char *lb_str = filp->private_data;
-	char lbuf[32];
+	char lbuf[32] = { 0 };
 	int rc;
 	unsigned long param[5];
 
@@ -10782,7 +10782,7 @@ static void afe_release_uevent_data(struct kobject *kobj)
 #ifdef TFA_ADSP_SUPPORTED
 int send_tfa_cal_apr(void *buf, int cmd_size, bool bRead)
 {
-	int32_t result, port_id = AFE_PORT_ID_TFADSP_RX;
+	int32_t result = -1, port_id = AFE_PORT_ID_TFADSP_RX;
 	uint32_t port_index = 0, payload_size = 0;
 	size_t len;
 	struct rtac_cal_block_data *tfa_cal = &(this_afe.tfa_cal);
