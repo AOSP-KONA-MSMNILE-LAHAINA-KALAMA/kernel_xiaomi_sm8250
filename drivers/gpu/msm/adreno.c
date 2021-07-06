@@ -4182,6 +4182,7 @@ static struct platform_driver kgsl_bus_platform_driver = {
 	.driver = {
 		.name = "kgsl-busmon",
 		.of_match_table = busmon_match_table,
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	}
 };
 
