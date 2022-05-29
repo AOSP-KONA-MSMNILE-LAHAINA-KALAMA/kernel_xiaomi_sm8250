@@ -188,8 +188,6 @@ struct memcg_padding {
 #define MEMCG_PADDING(name)
 #endif
 
-struct lru_gen_mm_list;
-
 /*
  * The memory controller data structure. The memory controller controls both
  * page cache and RSS per cgroup. We would eventually like to provide
@@ -314,7 +312,8 @@ struct mem_cgroup {
 	spinlock_t event_list_lock;
 
 #ifdef CONFIG_LRU_GEN
-	struct lru_gen_mm_list *mm_list;
+	/* per-memcg mm_struct list */
+	struct lru_gen_mm_list mm_list;
 #endif
 
 	struct mem_cgroup_per_node *nodeinfo[0];
@@ -535,6 +534,18 @@ unsigned long mem_cgroup_get_max(struct mem_cgroup *memcg);
 void mem_cgroup_print_oom_info(struct mem_cgroup *memcg,
 				struct task_struct *p);
 
+static inline void mem_cgroup_enter_user_fault(void)
+{
+	WARN_ON(current->in_user_fault);
+	current->in_user_fault = 1;
+}
+
+static inline void mem_cgroup_exit_user_fault(void)
+{
+	WARN_ON(!current->in_user_fault);
+	current->in_user_fault = 0;
+}
+
 static inline bool task_in_memcg_oom(struct task_struct *p)
 {
 	return p->memcg_in_oom;
@@ -552,6 +563,23 @@ extern int do_swap_account;
 struct mem_cgroup *lock_page_memcg(struct page *page);
 void __unlock_page_memcg(struct mem_cgroup *memcg);
 void unlock_page_memcg(struct page *page);
+
+/* try to stablize page_memcg() for all the pages in a memcg */
+static inline bool mem_cgroup_trylock_pages(struct mem_cgroup *memcg)
+{
+	rcu_read_lock();
+
+	if (mem_cgroup_disabled() || !atomic_read(&memcg->moving_account))
+		return true;
+
+	rcu_read_unlock();
+	return false;
+}
+
+static inline void mem_cgroup_unlock_pages(void)
+{
+	rcu_read_unlock();
+}
 
 /*
  * idx can be of type enum memcg_stat_item or node_stat_item.
@@ -984,7 +1012,27 @@ static inline void unlock_page_memcg(struct page *page)
 {
 }
 
+static inline bool mem_cgroup_trylock_pages(struct mem_cgroup *memcg)
+{
+	/* to match page_memcg_rcu() */
+	rcu_read_lock();
+	return true;
+}
+
+static inline void mem_cgroup_unlock_pages(void)
+{
+	rcu_read_unlock();
+}
+
 static inline void mem_cgroup_handle_over_high(void)
+{
+}
+
+static inline void mem_cgroup_enter_user_fault(void)
+{
+}
+
+static inline void mem_cgroup_exit_user_fault(void)
 {
 }
 

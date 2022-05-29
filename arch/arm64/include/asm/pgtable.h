@@ -42,7 +42,6 @@
 
 #include <asm/cmpxchg.h>
 #include <asm/fixmap.h>
-#include <asm/cpufeature.h>
 #include <linux/mmdebug.h>
 #include <linux/mm_types.h>
 #include <linux/sched.h>
@@ -413,6 +412,7 @@ static inline int pmd_protnone(pmd_t pmd)
 #define pfn_pud(pfn,prot)	__pud(__phys_to_pud_val((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
 
 #define set_pmd_at(mm, addr, pmdp, pmd)	set_pte_at(mm, addr, (pte_t *)pmdp, pmd_pte(pmd))
+#define set_pud_at(mm, addr, pudp, pud)	set_pte_at(mm, addr, (pte_t *)pudp, pud_pte(pud))
 
 #define __pgd_to_phys(pgd)	__pte_to_phys(pgd_pte(pgd))
 #define __phys_to_pgd_val(phys)	__phys_to_pte_val(phys)
@@ -783,11 +783,7 @@ extern pgd_t tramp_pg_dir[PTRS_PER_PGD];
 
 extern int kern_addr_valid(unsigned long addr);
 
-static inline bool arch_has_hw_pte_young(void)
-{
-	return system_has_hw_af();
-}
-#define arch_has_hw_pte_young arch_has_hw_pte_young
+#define arch_has_hw_pte_young	cpu_has_hw_af
 
 #include <asm-generic/pgtable.h>
 

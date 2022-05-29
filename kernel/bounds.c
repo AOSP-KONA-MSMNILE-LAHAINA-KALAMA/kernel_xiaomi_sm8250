@@ -23,10 +23,11 @@ int main(void)
 #endif
 	DEFINE(SPINLOCK_SIZE, sizeof(spinlock_t));
 #ifdef CONFIG_LRU_GEN
-	/* bits needed to represent internal values stored in page->flags */
-	DEFINE(LRU_GEN_WIDTH, order_base_2(CONFIG_NR_LRU_GENS + 1));
-	/* bits needed to represent normalized values for external uses */
-	DEFINE(LRU_GEN_SHIFT, order_base_2(CONFIG_NR_LRU_GENS));
+	DEFINE(LRU_GEN_WIDTH, order_base_2(MAX_NR_GENS + 1));
+	DEFINE(LRU_REFS_WIDTH, MAX_NR_TIERS - 2);
+#else
+	DEFINE(LRU_GEN_WIDTH, 0);
+	DEFINE(LRU_REFS_WIDTH, 0);
 #endif
 	/* End of constants */
 

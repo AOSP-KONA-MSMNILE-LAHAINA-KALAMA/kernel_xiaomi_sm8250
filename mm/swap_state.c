@@ -8,6 +8,7 @@
  *  Rewritten to use page cache, (C) 1998 Stephen Tweedie
  */
 #include <linux/mm.h>
+#include <linux/mm_inline.h>
 #include <linux/gfp.h>
 #include <linux/kernel_stat.h>
 #include <linux/swap.h>
@@ -21,7 +22,6 @@
 #include <linux/vmalloc.h>
 #include <linux/swap_slots.h>
 #include <linux/huge_mm.h>
-#include <linux/mm_inline.h>
 
 #include <asm/pgtable.h>
 #include "internal.h"
@@ -147,6 +147,7 @@ int __add_to_swap_cache(struct page *page, swp_entry_t entry, void **shadowp)
 
 		__radix_tree_replace(&address_space->i_pages, node, slot,
 				     page + i, NULL);
+
 		if (shadowp) {
 			VM_BUG_ON(i);
 			*shadowp = item;
@@ -447,6 +448,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
 	struct address_space *swapper_space = swap_address_space(entry);
 	int err;
 	void *shadow;
+
 	*new_page_allocated = false;
 
 	do {
