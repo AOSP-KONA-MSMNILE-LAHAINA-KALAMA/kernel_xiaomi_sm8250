@@ -167,25 +167,6 @@ static void tlb_table_flush(struct mmu_gather *tlb)
 	}
 }
 
-void tlb_remove_table(struct mmu_gather *tlb, void *table)
-{
-	struct mmu_table_batch **batch = &tlb->batch;
-
-	if (*batch == NULL) {
-		*batch = (struct mmu_table_batch *)__get_free_page(GFP_NOWAIT | __GFP_NOWARN);
-		if (*batch == NULL) {
-			tlb_table_invalidate(tlb);
-			tlb_remove_table_one(table);
-			return;
-		}
-		(*batch)->nr = 0;
-	}
-
-	(*batch)->tables[(*batch)->nr++] = table;
-	if ((*batch)->nr == MAX_TABLE_BATCH)
-		tlb_table_flush(tlb);
-}
-
 #endif /* CONFIG_HAVE_RCU_TABLE_FREE */
 
 static void tlb_flush_mmu_free(struct mmu_gather *tlb)
