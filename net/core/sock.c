@@ -2856,9 +2856,6 @@ void sock_init_data_uid(struct socket *sock, struct sock *sk, kuid_t uid)
 	}
 	sk->sk_uid	=	uid;
 
-#if IS_ENABLED(CONFIG_MIHW)
-	sk->pid_num		=	pid_nr_ns(task_tgid(current), &init_pid_ns);
-#endif
 	rwlock_init(&sk->sk_callback_lock);
 	if (sk->sk_kern_sock)
 		lockdep_set_class_and_name(
