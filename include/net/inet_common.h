@@ -18,10 +18,8 @@ struct sock;
 struct sockaddr;
 struct socket;
 
-#ifdef CONFIG_MPTCP
 int inet_create(struct net *net, struct socket *sock, int protocol, int kern);
 int inet6_create(struct net *net, struct socket *sock, int protocol, int kern);
-#endif
 
 int inet_release(struct socket *sock);
 int inet_stream_connect(struct socket *sock, struct sockaddr *uaddr,
